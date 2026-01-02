@@ -68,3 +68,8 @@ The DE1-SoC pushbuttons are **active-LOW**:
 - `1` = button not pressed  
 
 This requires inverted logic in the button detection code.
+
+
+
+
+YOUTUBE LINK: https://www.youtube.com/watch?v=Urqwm2qQBVY
