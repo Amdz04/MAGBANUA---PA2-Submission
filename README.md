@@ -1,59 +1,70 @@
-### Debouncing Implementation
+## Debouncing Implementation
 
-#### Why Debouncing is Essential
-Without debouncing, mechanical switch bounce causes a single button press to register as multiple presses. This leads to erratic behavior in embedded systems, such as counting multiple times from one press or toggling states unpredictably. Debouncing ensures reliable user input by filtering out physical bounce noise.
+### Why Debouncing Is Essential
+Without debouncing, mechanical switch bounce can cause a single button press to be detected multiple times. This results in erratic behavior in embedded systems, such as counters incrementing more than once per press or states toggling unpredictably. Debouncing ensures reliable user input by filtering out the noise caused by physical switch bounce.
 
-a) Time delay (debounce delay)
+---
 
-When a button press is first detected, the software waits for a short fixed time (usually 5–50 ms).
+### Software Debouncing Techniques
 
-During this delay, any bouncing transitions are ignored.
+#### a) Time Delay (Debounce Delay)
+When a button press is first detected, the software waits for a short, fixed time—typically **5–50 ms**.
 
-The delay allows the switch contacts to settle into a stable state.
+- During this delay, all bouncing transitions are ignored.
+- The delay allows the switch contacts to settle into a stable state.
 
-Example idea:
+**Example concept:**
 
-Detect press → wait 20 ms → continue processing
+This approach prevents multiple toggles caused by rapid contact bouncing.
 
-This prevents multiple toggles caused by rapid contact bouncing.
+---
 
-b) Confirm-after-delay check
+#### b) Confirm-After-Delay Check
+After the debounce delay, the software reads the button again to verify that it remains in the expected state.
 
-After the delay, the software reads the button again to confirm that it is still in the expected state.
+- If the button is still pressed, the input is considered **valid**.
+- If the button has returned to its previous state, the input is ignored as noise.
 
-If the button is still pressed after the delay, the press is considered valid.
+This step ensures the input is stable rather than a momentary bounce.
 
-If the button has returned to its previous state, the press is ignored as noise.
+---
 
-This step is important because it ensures the input is stable, not just momentarily triggered by bounce.
+#### c) Optional “Wait for Release”
+To avoid repeated actions while the button is held down, the software can wait until the button is released before accepting another press.
 
-c) Optional “wait for release”
+- Once a valid press is registered, further input is ignored until the button returns to its inactive state.
+- This guarantees exactly **one action per press**, even if the button is held.
 
-To prevent repeated counting while the button is held down, the software can wait until the button is released before accepting another press.
+This method is especially useful for counters or menu navigation.
 
-Once a valid press is registered, the program does nothing until the button returns to its inactive state.
+---
 
-This guarantees one action per press, even if the button is held.
+### Method Implemented
+The system implements the **confirm-after-delay method** with the following characteristics:
 
-This is especially useful for counters or menu navigation.
+#### Delay Constant
+**Reasoning for 10 ms:**
+- Typical mechanical switch bounce lasts **1–10 ms**
+- 10 ms provides a safe margin for most switches
+- Short enough to maintain good user responsiveness
+- Balances reliability and performance
 
-#### Method Implemented
-We implemented the **confirm-after-delay method** with the following characteristics:
+---
 
-**Delay Constant**:
-**Reasoning for 10ms**: 
-- Typical mechanical switch bounce lasts 1-10ms
-- 10ms provides a safety margin for most switches
-- Not too long to affect user experience
-- Balances responsiveness with reliability
+### Algorithm Steps
+1. Detect the initial button state change  
+2. Wait **10 ms** for bouncing to settle  
+3. Read the button state again to confirm  
+4. If the state remains changed, process it as a valid press  
+5. Use edge detection to trigger on the falling edge (**1 → 0**)  
+6. Optionally wait for button release before accepting the next press  
 
-**Algorithm Steps**
-1. Detect initial button state change
-2. Wait 10ms for bouncing to settle
-3. Read button state again to confirm
-4. If state remains changed, process as valid press
-5. Implement edge detection to trigger on falling edge (1→0)
-6. Optional: Wait for release before accepting next press
+---
 
-**Active-LOW Consideration**: 
-The DE1-SoC uses active-LOW buttons (0 = pressed, 1 = not pressed), requiring inverted logic in the detection code.
+### Active-LOW Consideration
+The DE1-SoC pushbuttons are **active-LOW**:
+
+- `0` = button pressed  
+- `1` = button not pressed  
+
+This requires inverted logic in the button detection code.
